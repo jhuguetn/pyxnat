@@ -10,6 +10,25 @@ project_description = 'Automatically generated project hosting a ' \
                       'purposes. This is not a real study. {source}'
 
 
+def amypad_sid(alfa_id):
+    import pandas as pd
+    lut_sheet = 'E:/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
+    lut_df = pd.read_excel(lut_sheet)
+    lut_df = lut_df[lut_df['AMYPAD ID'].notnull()]
+
+    return (lut_df[lut_df['ALFA ID'] == alfa_id]['AMYPAD ID'].values[0]).replace('030-','930-')
+
+
+def alfa_sid(amypad_id):
+    import pandas as pd
+    lut_sheet = 'E:/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
+    lut_df = pd.read_excel(lut_sheet)
+    lut_df = lut_df[lut_df['AMYPAD ID'].notnull()]
+
+    amypad_id = amypad_id.replace('930-','030-')
+    return lut_df[lut_df['AMYPAD ID'] == amypad_id]['ALFA ID'].values[0]
+
+
 def generate_project_id(label):
     """Helper for the generation of a synthetic XNAT project name."""
 
@@ -58,7 +77,14 @@ def mirror_session(src_sess, dst_sess, cache_dir, scan_types=None, res_types=Non
     # filter scan types to be exported (if applies)
     scans = list(src_sess.scans())
     if scan_types:
-        scans_filtered = [s for s in scans if s.attrs.get('type') in scan_types]
+        scans_filtered = [s for s in scans if s.attrs.get('type') in scan_types
+                          and not str(s.id()).startswith('0')
+                          and s.attrs.get('xnat:imagescandata/quality') == 'usable'
+                          and s.datatype() in ['xnat:mrScanData', 'xnat:petScanData', 'xnat:ctScanData']]
+        scans = scans_filtered
+    else:
+        scans_filtered = [s for s in scans if s.attrs.get('xnat:imagescandata/quality') == 'usable'
+                          and s.datatype() in ['xnat:mrScanData', 'xnat:petScanData', 'xnat:ctScanData']]
         scans = scans_filtered
 
     if scans:
@@ -75,6 +101,8 @@ def mirror_session(src_sess, dst_sess, cache_dir, scan_types=None, res_types=Non
     if res_types:
         res_filtered = [r for r in resources if r.label() in res_types]
         resources = res_filtered
+    else:
+        resources = None
 
     if resources:
         # process each resource
@@ -118,7 +146,7 @@ def main(args):
         notebook_url = args.notebook_url
 
     # create a project for the data selection
-    proj = generate_project_id(args.label)
+    proj = '_AMYPAD02_930_ADV_MRI' #proj = generate_project_id(args.label)
     if args.reuse_project:
         log.info('Reusing project `{}`'.format(proj))
         p = c2.select.project(proj)
@@ -132,11 +160,15 @@ def main(args):
     for experiment_id in exps:
         e = c1.array.experiments(experiment_id=experiment_id,
                                  columns=['subject_label', 'label']).data[0]
-        s = p.subject(e['subject_label'])
+        subj_label = amypad_sid(e['subject_label'])
+        exp_label = '{subject}_{tp}_{se}'.format(subject=subj_label,
+                                                 tp=args.timepoint,
+                                                 se=args.session)
+        s = p.subject(subj_label)
         if not s.exists():
-            log.info('Creating subject `{}`...'.format(e['subject_label']))
+            log.info('Creating subject `{}`...'.format(subj_label))
             s.create()
-        dst_exp = s.experiment(e['label'])
+        dst_exp = s.experiment(exp_label)
         if dst_exp.exists():
             log.warning('Experiment `{}` already exists. '
                         'Skipping.'.format(dst_exp._urn))
@@ -186,6 +218,12 @@ def create_parser():
     arg_parser.add_argument(
         '-v', '--verbose', dest='verbose', action='store_true', default=False,
         help='display verbosal information (optional)', required=False)
+    arg_parser.add_argument(
+        '--timepoint', dest='timepoint', required=True,
+        help='timepoint of the data selection')
+    arg_parser.add_argument(
+        '--session', dest='session', required=True,
+        help='session () of the data selection')
 
     return arg_parser
 
