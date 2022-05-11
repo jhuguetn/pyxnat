@@ -492,6 +492,8 @@ def copy_scan(src_scan, dst_scan, scan_cache_dir):
     # Process each resource of scan
     for src_res in src_scan.resources().fetchall('obj'):
         res_label = src_res.label()
+        if res_label == 'NIFTI':
+            continue
 
         print('INFO:Processing resource:%s...' % res_label)
 
