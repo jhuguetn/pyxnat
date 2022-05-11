@@ -16,7 +16,7 @@ def amypad_sid(alfa_id):
     lut_df = pd.read_excel(lut_sheet)
     lut_df = lut_df[lut_df['AMYPAD ID'].notnull()]
 
-    return (lut_df[lut_df['ALFA ID'] == alfa_id]['AMYPAD ID'].values[0]).replace('030-','930-')
+    return (lut_df[lut_df['ALFA ID'] == int(alfa_id)]['AMYPAD ID'].values[0]).replace('030-','930-')
 
 
 def alfa_sid(amypad_id):
