@@ -12,7 +12,7 @@ project_description = 'Automatically generated project hosting a ' \
 
 def amypad_sid(alfa_id):
     import pandas as pd
-    lut_sheet = 'E:/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
+    lut_sheet = '/mnt/e/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
     lut_df = pd.read_excel(lut_sheet)
     lut_df = lut_df[lut_df['AMYPAD ID'].notnull()]
 
@@ -21,7 +21,7 @@ def amypad_sid(alfa_id):
 
 def alfa_sid(amypad_id):
     import pandas as pd
-    lut_sheet = 'E:/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
+    lut_sheet = '/mnt/e/jhuguet/projects/amypad/data_upload_IXICO/LUT_identifiers_v3.xlsx'
     lut_df = pd.read_excel(lut_sheet)
     lut_df = lut_df[lut_df['AMYPAD ID'].notnull()]
 
