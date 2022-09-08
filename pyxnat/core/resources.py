@@ -1515,7 +1515,7 @@ class Subject(EObject):
         return Projects(join_uri(self._uri, 'projects'),
                         self._intf, id_filter)
 
-    def share(self, project, label=None):
+    def share(self, project, label=None, primary=False):
         """ Share the subject with another project.
 
             Parameters
@@ -1536,6 +1536,9 @@ class Subject(EObject):
             options.append('label=%s' % label)
         else:
             options.append('label=%s' % self.label())
+
+        if primary:
+            options.append('primary=true')
 
         options = '?' + '&'.join(options)
 
@@ -1642,7 +1645,7 @@ class Experiment(EObject):
         return Projects(join_uri(self._uri, 'projects'),
                         self._intf, id_filter)
 
-    def share(self, project, label=None):
+    def share(self, project, label=None, primary=False):
         """ Share the experiment with another project.
 
             Parameters
@@ -1663,6 +1666,9 @@ class Experiment(EObject):
             options.append('label=%s' % label)
         else:
             options.append('label=%s' % self.label())
+
+        if primary:
+            options.append('primary=true')
 
         options = '?' + '&'.join(options)
 
