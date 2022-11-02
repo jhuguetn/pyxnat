@@ -52,16 +52,16 @@ def test_001_setup_docker_xnat():
         cmd = 'curl --cookie-jar /tmp/cookie --header "Content-Type: application/x-www-form-urlencoded" '\
             '--request POST '\
             '--data "username={user}&password={password}&login=&XNAT_CSRF=" '\
-            'http://localhost/login'.format(user=x._user, password=x._pwd)
+            'http://localhost:8080/login'.format(user=x._user, password=x._pwd)
         print(cmd)
         os.system(cmd)
 
         cmd = 'curl --cookie /tmp/cookie --header "Content-Type: application/json" '\
             '--request POST '\
             '--data \'%s\' '\
-            'http://localhost/xapi/siteConfig'
+            'http://localhost:8080/xapi/siteConfig'
 
-        cmd2 = cmd % '{"siteId": "XNAT", "siteUrl": "http://localhost", "adminEmail": "fake@fake.fake"}'
+        cmd2 = cmd % '{"siteId": "XNAT", "siteUrl": "http://localhost:8080", "adminEmail": "fake@fake.fake"}'
         print(cmd2)
         os.system(cmd2)
 
