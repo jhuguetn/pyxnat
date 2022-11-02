@@ -5,6 +5,7 @@ on:
     branches:
       - 'master'
       - 'bbrc'
+      - 'xnat4tests'
   pull_request:
     branches:
       - 'master'
