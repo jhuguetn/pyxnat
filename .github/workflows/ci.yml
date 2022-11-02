@@ -30,7 +30,6 @@ jobs:
       - run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - run: pip install xnat4tests
       - name: Start xnat4test
         run: xnat4tests_launch
       - run: sleep 120
