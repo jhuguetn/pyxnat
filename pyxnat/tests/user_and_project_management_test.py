@@ -45,7 +45,11 @@ def docker_available(func=None):
 def test_001_setup_docker_xnat():
     import os
     import pyxnat
+    import json
+    import tempfile
 
+    tmp_fh, tmp_fp = tempfile.mkstemp(suffix='.json')
+    os.close(tmp_fh)
     x = pyxnat.Interface(config='.xnat.cfg')
 
     try:
@@ -58,25 +62,42 @@ def test_001_setup_docker_xnat():
 
         cmd = 'curl --cookie /tmp/cookie --header "Content-Type: application/json" '\
             '--request POST '\
-            '--data \'%s\' '\
-            'http://localhost:8080/xapi/siteConfig'
+            '--data @%s '\
+            'http://localhost:8080/xapi/siteConfig' % tmp_fp
 
-        cmd2 = cmd % '{"siteId":"XNAT","siteUrl":"http://localhost:8080","adminEmail":"fake@fake.fake"}'
-        print(cmd2)
-        os.system(cmd2)
+        data = {"siteId": "XNAT",
+                "siteUrl": "http://localhost:8080",
+                "adminEmail": "fake@fake.fake"}
+        with open(tmp_fp, "w") as tmp:
+            json.dump(data, tmp)
+        print(cmd)
+        os.system(cmd)
 
-        cmd2 = cmd % '{"archivePath":"/data/xnat/archive","prearchivePath":"/data/xnat/prearchive","cachePath":"/data/xnat/cache","buildPath":"/data/xnat/build","ftpPath":"/data/xnat/ftp","pipelinePath":"/data/xnat/pipeline","inboxPath":"/data/xnat/inbox"}'
-        print(cmd2)
-        os.system(cmd2)
+        data = {"archivePath": "/data/xnat/archive",
+                "prearchivePath": "/data/xnat/prearchive",
+                "cachePath": "/data/xnat/cache",
+                "buildPath": "/data/xnat/build",
+                "ftpPath": "/data/xnat/ftp",
+                "pipelinePath": "/data/xnat/pipeline",
+                "inboxPath": "/data/xnat/inbox"}
+        with open(tmp_fp, "w") as tmp:
+            json.dump(data, tmp)
+        print(cmd)
+        os.system(cmd)
 
-        cmd2 = cmd % '{"requireLogin":true,"userRegistration":false,"enableCsrfToken":true}'
-        print(cmd2)
-        os.system(cmd2)
+        data = {"requireLogin": True,
+                "userRegistration": False,
+                "enableCsrfToken": True}
+        with open(tmp_fp, "w") as tmp:
+            json.dump(data, tmp)
+        print(cmd)
+        os.system(cmd)
 
-        cmd2 = cmd % '{"initialized":true}'
-        print(cmd2)
-        os.system(cmd2)
-
+        data = {"initialized": True}
+        with open(tmp_fp, "w") as tmp:
+            json.dump(data, tmp)
+        print(cmd)
+        os.system(cmd)
 
         p = x.select.project('nosetests')
         p.create()
@@ -86,12 +107,13 @@ def test_001_setup_docker_xnat():
 
         uri = '/data/projects/nosetests'
         options = {'alias': 'nosetests2'}
-        data = x.put(uri, params=options).text
+        x.put(uri, params=options)
 
     except Exception:
         print('Skipping initialization.')
         raise SkipTest('Docker-based XNAT initialization failed.')
-
+    finally:
+        os.remove(tmp_fp)
 
 @docker_available
 def test_users():
