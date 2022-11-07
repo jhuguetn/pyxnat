@@ -61,7 +61,7 @@ def test_001_setup_docker_xnat():
             '--data \'%s\' '\
             'http://localhost:8080/xapi/siteConfig'
 
-        cmd2 = cmd % '{"siteId": "XNAT", "siteUrl": "http://localhost:8080", "adminEmail": "fake@fake.fake"}'
+        cmd2 = cmd % '{"siteId":"XNAT","siteUrl":"http://localhost:8080","adminEmail":"fake@fake.fake"}'
         print(cmd2)
         os.system(cmd2)
 
