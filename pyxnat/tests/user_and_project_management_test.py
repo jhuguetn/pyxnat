@@ -60,11 +60,20 @@ def test_001_setup_docker_xnat():
         print(cmd)
         os.system(cmd)
 
+        cmd = 'curl --cookie /tmp/cookie --header "Content-Type: application/json" ' \
+              '--request PUT ' \
+              '--data @%s ' \
+              'http://localhost:8080/xapi/users/admin' % tmp_fp
+        data = {"email": "fake@fake.fake"}
+        with open(tmp_fp, "w") as tmp:
+            json.dump(data, tmp)
+        print(cmd)
+        os.system(cmd)
+
         cmd = 'curl --cookie /tmp/cookie --header "Content-Type: application/json" '\
             '--request POST '\
             '--data @%s '\
             'http://localhost:8080/xapi/siteConfig' % tmp_fp
-
         data = {"siteId": "XNAT",
                 "siteUrl": "http://localhost:8080",
                 "adminEmail": "fake@fake.fake"}
